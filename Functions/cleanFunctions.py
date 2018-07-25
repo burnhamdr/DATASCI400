@@ -103,8 +103,8 @@ def outlierRemover(df):
         if notBinary(df, column): #binary columns excluded from outlier removal operations
             #checks if the column datatype is numeric
             if(df[column].dtype == np.float64 or df[column].dtype == np.int64):
-                LimitHi = df[column].mean() + 2*df[column].std()#plus 2 std
-                LimitLo = df[column].mean() - 2*df[column].std()#minus 2 std
+                LimitHi = df[column].mean() + 2.5*df[column].std()#plus 2 std
+                LimitLo = df[column].mean() - 2.5*df[column].std()#minus 2 std
                 #Create dataframe for values within limits
                 good = df[(df[column] >= LimitLo) & (df[column] <= LimitHi)]
                 #Create dataframe for values outside limits
@@ -239,5 +239,33 @@ def normalizer(df, minMax):
                 z_scaler = preprocessing.StandardScaler()
                 # Create an object to transform the data to fit minmax processor
                 x_scaled = z_scaler.fit_transform(x)
-            df[h] = x_scaled
+            df_copy[h] = x_scaled
     return df_copy
+
+# split a dataset in dataframe format, using a given ratio for the testing set
+def splitter(df, ratio, seed, pred_col):
+    #index object with indices of overall dataframe
+    all_ind = pd.Index(df.index.values)
+    
+    if ratio >= 1: 
+        print ("Parameter r needs to be smaller than 1!")
+        return
+    elif ratio <= 0:
+        print ("Parameter r needs to be larger than 0!")
+        return
+    #random split of the overall dataframe into a test subset
+    df_test = df.sample(frac=ratio, random_state=seed)
+    #list of the indices of the test dataframe split
+    ind_test = df_test.index.values.tolist()
+    #boolean array of where test indices are in the overall dataframe
+    split_indices = all_ind.isin(ind_test)
+    df_train = df[~split_indices] #dataframe containing data to train on
+    df_train_out = df_train[pred_col] #output to predict in training dataset
+    df_test_out = df_test[pred_col] #output to predict in testing dataset
+    #remove output column from training dataset
+    df_train = df_train.drop(pred_col, axis = 1)
+    #remove output column from testing dataset
+    df_test = df_test.drop(pred_col, axis = 1)
+    
+    #return the testing and training dataset with respective outputs to predict
+    return df_test, df_test_out, df_train, df_train_out

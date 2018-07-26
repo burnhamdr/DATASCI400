@@ -16,8 +16,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier 
-from sklearn.linear_model import Ridge
-from sklearn.linear_model import Lasso
+from sklearn.metrics import accuracy_score
+
 
 '''DATA PREPARATION'''
 rs = random.seed(15)
@@ -49,7 +49,7 @@ df4 = df4.drop(["Genotype", "Treatment", "Behavior"], axis=1)
 #split into train and test dataframes for predictive modeling
 df_test, df_test_y, df_train, df_train_y = cf.splitter(df4, 0.4, rs, "class")
 
-'''
+
 """ CLASSIFICATION MODELS """
 # Logistic regression classifier
 print ('\n\n\nLogistic regression classifier\n')
@@ -64,29 +64,18 @@ tolerance_parameter = 0.1 # termination parameter
 clf = LogisticRegression(C=C_parameter, multi_class=class_parameter, 
                          penalty=penalty_parameter, solver=solver_parameter, 
                          tol=tolerance_parameter)
-clf.fit(df_train, df_train_y) 
-print ('coefficients:')
-# each row of this matrix corresponds to each one of the classes of the dataset
-print (clf.coef_)
-print ('intercept:')
-# each element of this vector corresponds to each one of the classes of the dataset
-print (clf.intercept_)
-
+clf.fit(df_train, df_train_y)
 # Apply the Model
-print ('predictions for test set:')
-print (clf.predict(df_test))
-print ('actual class values:')
-print (df_)
+preds_logr = clf.predict(df_test)
+print(accuracy_score(df_test_y, preds_logr))
 #####################
 
 # Naive Bayes classifier
-print ('\n\nNaive Bayes classifier\n')
+print('\n\nNaive Bayes classifier\n')
 nbc = GaussianNB() # default parameters are fine
-nbc.fit(X, Y)
-print ("predictions for test set:")
-print (nbc.predict(XX))
-print ('actual class values:')
-print (YY)
+nbc.fit(df_train, df_train_y)
+preds_bayes = nbc.predict(df_test)
+print(accuracy_score(df_test_y, preds_bayes))
 ####################
 
 # k Nearest Neighbors classifier
@@ -94,11 +83,9 @@ print ('\n\nK nearest neighbors classifier\n')
 k = 5 # number of neighbors
 distance_metric = 'euclidean'
 knn = KNeighborsClassifier(n_neighbors=k, metric=distance_metric)
-knn.fit(X, Y)
-print ("predictions for test set:")
-print (knn.predict(XX))
-print ('actual class values:')
-print (YY)
+knn.fit(df_train, df_train_y)
+preds_knn = knn.predict(df_test)
+print(accuracy_score(df_test_y, preds_knn))
 ###################
 
 # Support vector machine classifier
@@ -106,21 +93,17 @@ t = 0.001 # tolerance parameter
 kp = 'rbf' # kernel parameter
 print ('\n\nSupport Vector Machine classifier\n')
 clf = SVC(kernel=kp, tol=t)
-clf.fit(X, Y)
-print ("predictions for test set:")
-print (clf.predict(XX))
-print ('actual class values:')
-print (YY)
+clf.fit(df_train, df_train_y)
+preds_svm = clf.predict(df_test)
+print(accuracy_score(df_test_y, preds_svm))
 ####################
 
 # Decision Tree classifier
 print ('\n\nDecision Tree classifier\n')
 clf = DecisionTreeClassifier() # default parameters are fine
-clf.fit(X, Y)
-print ("predictions for test set:")
-print (clf.predict(XX))
-print ('actual class values:')
-print (YY)
+clf.fit(df_train, df_train_y)
+preds_dtc = clf.predict(df_test)
+print(accuracy_score(df_test_y, preds_dtc))
 ####################
 
 # Random Forest classifier
@@ -128,10 +111,7 @@ estimators = 10 # number of trees parameter
 mss = 2 # mininum samples split parameter
 print ('\n\nRandom Forest classifier\n')
 clf = RandomForestClassifier(n_estimators=estimators, min_samples_split=mss) # default parameters are fine
-clf.fit(X, Y)
-print ("predictions for test set:")
-print (clf.predict(XX))
-print ('actual class values:')
-print (YY)
+clf.fit(df_train, df_train_y)
+preds_rf = clf.predict(df_test)
+print(accuracy_score(df_test_y, preds_dtc))
 ####################
-'''
